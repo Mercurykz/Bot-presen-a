@@ -1,0 +1,11 @@
+
+{
+  "name": "bot",
+  "main": "bot.js",
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "qrcode": "^1.5.1",
+    "node-fetch": "^2.6.7",
+    "dotenv": "^16.0.0"
+  }
+}
