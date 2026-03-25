@@ -1,21 +1,17 @@
 {
   "name": "bot-zika",
   "version": "1.0.0",
-  "description": "1. Configure .env 2. npm install (in backend and bot) 3. Run backend: npm run dev 4. Run bot: node bot.js",
-  "main": "index.js",
+  "description": "Sistema de presença com QR Code",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Mercurykz/Bot-presen-a.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Mercurykz/Bot-presen-a/issues"
-  },
-  "homepage": "https://github.com/Mercurykz/Bot-presen-a#readme"
+  "dependencies": {
+    "express": "^4.18.2",
+    "passport": "^0.6.0",
+    "passport-discord": "^0.1.4",
+    "express-session": "^1.17.3",
+    "dotenv": "^16.0.0"
+  }
 }
