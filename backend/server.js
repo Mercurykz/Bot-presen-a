@@ -3,7 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
 const DiscordStrategy = require("passport-discord").Strategy;
-const Database = require("better-sqlite3");
+const sqlite3 = require("sqlite3").verbose();
 const http = require("http");
 const { Server } = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
@@ -13,28 +13,32 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // DB
-const db = new Database("./db.sqlite");
+const db = new sqlite3.Database("./db.sqlite");
 
-// Criar tabelas
-db.prepare(`
-CREATE TABLE IF NOT EXISTS users(
-  id INTEGER PRIMARY KEY,
-  discord_id TEXT UNIQUE,
-  username TEXT
-)`).run();
+db.serialize(()=>{
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users(
+      id INTEGER PRIMARY KEY,
+      discord_id TEXT UNIQUE,
+      username TEXT
+    )
+  `);
 
-db.prepare(`
-CREATE TABLE IF NOT EXISTS chamadas(
-  id TEXT PRIMARY KEY,
-  ativa INTEGER
-)`).run();
+  db.run(`
+    CREATE TABLE IF NOT EXISTS chamadas(
+      id TEXT PRIMARY KEY,
+      ativa INTEGER
+    )
+  `);
 
-db.prepare(`
-CREATE TABLE IF NOT EXISTS presencas(
-  id INTEGER PRIMARY KEY,
-  user_id INTEGER,
-  chamada_id TEXT
-)`).run();
+  db.run(`
+    CREATE TABLE IF NOT EXISTS presencas(
+      id INTEGER PRIMARY KEY,
+      user_id INTEGER,
+      chamada_id TEXT
+    )
+  `);
+});
 
 // Middlewares
 app.use(express.json());
@@ -74,7 +78,7 @@ app.get("/dashboard", (req,res)=>{
 
 app.post("/api/chamada", (req,res)=>{
  const id = uuidv4();
- db.prepare("INSERT INTO chamadas(id, ativa) VALUES (?,1)").run(id);
+ db.run("INSERT INTO chamadas(id, ativa) VALUES (?,1)", [id]);
 
  res.json({id, link:`https://SEU-DOMINIO/checkin/${id}`});
 });
@@ -90,28 +94,34 @@ app.get("/registrar", (req,res)=>{
  const discordId = req.user.id;
  const chamada = req.session.chamada;
 
- let user = db.prepare("SELECT * FROM users WHERE discord_id=?").get(discordId);
+ db.get("SELECT * FROM users WHERE discord_id=?", [discordId], (e,user)=>{
+   if(!user){
+     db.run(
+       "INSERT INTO users(discord_id, username) VALUES (?,?)",
+       [discordId, req.user.username]
+     );
+   }
 
- if(!user){
-   db.prepare("INSERT INTO users(discord_id, username) VALUES (?,?)")
-     .run(discordId, req.user.username);
+   db.get("SELECT id FROM users WHERE discord_id=?", [discordId], (e,u)=>{
+     db.get(
+       "SELECT * FROM presencas WHERE user_id=? AND chamada_id=?",
+       [u.id, chamada],
+       (e,p)=>{
 
-   user = db.prepare("SELECT * FROM users WHERE discord_id=?").get(discordId);
- }
+         if(p) return res.send("Já registrado");
 
- const presenca = db.prepare(
-   "SELECT * FROM presencas WHERE user_id=? AND chamada_id=?"
- ).get(user.id, chamada);
+         db.run(
+           "INSERT INTO presencas(user_id,chamada_id) VALUES (?,?)",
+           [u.id, chamada]
+         );
 
- if(presenca) return res.send("Já registrado");
+         io.emit("nova_presenca", {user:req.user.username});
 
- db.prepare(
-   "INSERT INTO presencas(user_id,chamada_id) VALUES (?,?)"
- ).run(user.id, chamada);
-
- io.emit("nova_presenca", {user:req.user.username});
-
- res.send("Presença OK");
+         res.send("Presença OK");
+       }
+     );
+   });
+ });
 });
 
 io.on("connection", ()=>{});
