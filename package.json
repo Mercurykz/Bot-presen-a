@@ -1,10 +1,9 @@
 {
   "name": "bot-presen-a",
   "version": "1.0.0",
-  "description": "1. Configure .env\r 2. npm install (in backend and bot)\r 3. Run backend: npm run dev\r 4. Run bot: node bot.js",
-  "main": "index.js",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend/server.js"
   },
   "repository": {
     "type": "git",
