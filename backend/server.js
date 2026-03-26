@@ -1,3 +1,4 @@
+console.log("DEBUG ENV:", process.env.DISCORD_CLIENT_ID);
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
