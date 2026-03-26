@@ -1,0 +1,31 @@
+{
+  "name": "bot-presen-a",
+  "version": "1.0.0",
+  "description": "1. Configure .env\r 2. npm install (in backend and bot)\r 3. Run backend: npm run dev\r 4. Run bot: node bot.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mercurykz/Bot-presen-a.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mercurykz/Bot-presen-a/issues"
+  },
+  "homepage": "https://github.com/Mercurykz/Bot-presen-a#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "discord.js": "^14.25.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4",
+    "socket.io": "^4.8.3",
+    "uuid": "^13.0.0"
+  }
+}
